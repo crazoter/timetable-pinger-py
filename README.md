@@ -17,7 +17,7 @@ Necessary:
 * **UTC_TIME_DIFFERENCE**: Time difference from UTC (e.g. Singapore is UTC+8, so it would be "8"). Unfortunately current implementation probably doesn't account for daylight saving time
 
 Optional:
-* **TRIGGER_INTERVAL**: Integer, set this as the interval (in minutes) you set your cloudwatch to trigger the lambda code. Treat this as the precision number if you use a cron or something (e.g. if your code triggers every half an hour, set it to 30 or 31) Default 5.
+* **TRIGGER_INTERVAL**: Integer, set this as the interval (in minutes) you set your cloudwatch to trigger the lambda code. Treat this as the precision number if you use a cron or something (e.g. if your code triggers every half an hour, set it to 30 or 31, but 5 still works since it's precise enough). Default 5.
 * **INACTIVE_START_HOUR** Integer, start hour (inclusive) where the lambda stops sending pings (e.g. for when you are sleeping). Range 0-23, default 0.
 * **INACTIVE_END_HOUR** Integer, end hour (exclusive) where the lambda stops sending pings (e.g. for when you are sleeping). Range 0-23, default 8.
 * **DEBUG_MODE**: If set to a value, then messages will be more verbose. Telegram bot will also receive debug messages.
@@ -42,7 +42,7 @@ Optional:
 1. Make sure you have an AWS account. Using this application uses about ~10k lambda requests per month if you set the scheduler to ping every 5 minutes, so it's definitely still within the free tier. 
 2. Take the zip file and upload it onto AWS lambda. You can follow [this](https://docs.aws.amazon.com/lambda/latest/dg/getting-started-create-function.html) to create a function, but you'll need to click Actions > upload zip file to upload it (the UI may change in the future though).
     * If you want to create your own zipfile (development package) refer to [this](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-venv).
-3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. I schedule mine to trigger every 5 minutes because I like the guarantee of precision, but you can get by with 10 or even 30 minutes. You can also use cron (here is a [tool](https://crontab.guru/) for that).
+3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. I schedule mine to trigger every 5 minutes because I like the guarantee of precision, but you can get by with 10 or even 30 minutes. You can also use cron (here is a [tool](https://crontab.guru/) for that). I like to use cron `0,30 8-23 * * *`.
 4. Set all the necessary environmental variables for the lambda (See "AWS Lambda Config Parameters above).
 
 ## Others directory
