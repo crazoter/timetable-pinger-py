@@ -42,7 +42,7 @@ Optional:
 1. Make sure you have an AWS account. Using this application uses about ~10k lambda requests per month if you set the scheduler to ping every 5 minutes, so it's definitely still within the free tier. 
 2. Take the zip file and upload it onto AWS lambda. You can follow [this](https://docs.aws.amazon.com/lambda/latest/dg/getting-started-create-function.html) to create a function, but you'll need to click Actions > upload zip file to upload it (the UI may change in the future though).
     * If you want to create your own zipfile (development package) refer to [this](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-venv).
-3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. I schedule mine to trigger every 5 minutes because I like the guarantee of precision, but you can get by with 10 or even 30 minutes. You can also use cron (here is a [tool](https://crontab.guru/) for that). I like to use cron `0,30 8-23 * * *`.
+3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. I schedule mine to trigger every 5 minutes because I like the guarantee of precision, but you can get by with 10 or even 30 minutes. You can also use cron (here is a [tool](https://crontab.guru/) for that). I like to use the cron expression `0,30 8-23 * * ? *`. If you got it right you'll see the next 10 trigger dates.
 4. Set all the necessary environmental variables for the lambda (See "AWS Lambda Config Parameters above).
 
 ## Others directory
