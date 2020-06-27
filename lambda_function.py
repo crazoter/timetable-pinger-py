@@ -16,29 +16,24 @@ from google.oauth2 import service_account
 # AWS LAMBDA ENVIRONMENT VARIABLES
 # See https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html
 
-SPREADSHEET_ID = str(os.environ['SERVICE_ACCOUNT_SECRET'])
-SERVICE_ACCOUNT_SECRET = str(os.environ['SERVICE_ACCOUNT_SECRET'])
+SPREADSHEET_ID = str(os.environ['SPREADSHEET_ID'])
 TELEGRAM_BOT_TOKEN = str(os.environ['TELEGRAM_BOT_TOKEN'])
 TELEGRAM_CHAT_ID = str(os.environ['TELEGRAM_CHAT_ID'])
 UTC_TIME_DIFFERENCE = int(os.environ['UTC_TIME_DIFFERENCE'])
 
-TRIGGER_INTERVAL = os.environ['TRIGGER_INTERVAL']
-INACTIVE_START_HOUR = os.environ['INACTIVE_START_HOUR']
-INACTIVE_END_HOUR = os.environ['INACTIVE_END_HOUR']
-DEBUG_MODE = os.environ['DEBUG_MODE']
+TRIGGER_INTERVAL = 5
+INACTIVE_START_HOUR = 0
+INACTIVE_END_HOUR = 8
+DEBUG_MODE = 0
 
-if not TRIGGER_INTERVAL:
-    TRIGGER_INTERVAL = 5
-else:
-    TRIGGER_INTERVAL = int(TRIGGER_INTERVAL)
-if not INACTIVE_START_HOUR:
-    INACTIVE_START_HOUR = 0
-else:
-    INACTIVE_START_HOUR = int(INACTIVE_START_HOUR)
-if not INACTIVE_END_HOUR:
-    INACTIVE_END_HOUR = 8
-else:
-    INACTIVE_END_HOUR = int(INACTIVE_END_HOUR)
+if 'TRIGGER_INTERVAL' in os.environ:
+    TRIGGER_INTERVAL = int(os.environ['TRIGGER_INTERVAL'])
+if 'INACTIVE_START_HOUR' in os.environ:
+    INACTIVE_START_HOUR = int(os.environ['INACTIVE_START_HOUR'])
+if 'INACTIVE_END_HOUR' in os.environ:
+    INACTIVE_END_HOUR = int(os.environ['INACTIVE_END_HOUR'])
+if 'DEBUG_MODE' in os.environ:
+    DEBUG_MODE = os.environ['DEBUG_MODE']
 
 # Other constants specific to the spreadsheet
 DAY_JUMP_INDEX = 3
@@ -124,10 +119,6 @@ def is_time_to_ping(datetime_object):
         or (datetime_object.minute > 30 and datetime_object.minute - TRIGGER_INTERVAL <= 30)
     
 def lambda_handler(event, context):
-    if not SPREADSHEET_ID or not SERVICE_ACCOUNT_SECRET or not TELEGRAM_BOT_TOKEN \
-        or not TELEGRAM_CHAT_ID or not UTC_TIME_DIFFERENCE:
-        return { 'statusCode': 500, 'body': json.dumps('A required environment variable is not set') }
-    
     datetime_object = datetime.datetime.strptime(event["time"], '%Y-%m-%dT%H:%M:%SZ')
     datetime_object += datetime.timedelta(hours=UTC_TIME_DIFFERENCE)
 
@@ -147,9 +138,10 @@ def lambda_handler(event, context):
 
     try:
         # Setup access
-        key_json = json.loads(SERVICE_ACCOUNT_SECRET)
+        key_json = json.loads(os.environ['SERVICE_ACCOUNT_SECRET'])
         creds = service_account.Credentials.from_service_account_info(key_json, scopes=SCOPES)
-        service = discovery.build('sheets', 'v4', credentials=creds)
+        service = discovery.build('sheets', 'v4', credentials=creds, cache_discovery=False)
+        del key_json
         # See for API: http://googleapis.github.io/google-api-python-client/docs/dyn/sheets_v4.spreadsheets.html     
         # Get last sheet
         # https://stackoverflow.com/questions/38245714/get-list-of-sheets-and-latest-sheet-in-google-spreadsheet-api-v4-in-python
@@ -179,4 +171,6 @@ def lambda_handler(event, context):
         return { 'statusCode': 500, 'body': json.dumps(ret_msg(error)) }
 
     # Process should not reach this point
-    return { 'statusCode': 204 }
+    return { 'statusCode': 200, 'body': json.dumps(ret_msg('should not have reached here')) }
+
+# lambda_handler({"time": "2020-06-27T12:35:20Z"}, None)
