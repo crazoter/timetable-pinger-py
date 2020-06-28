@@ -8,7 +8,9 @@ Using AWS Lambda + Cloudwatch to read your timetable from Google Sheets and keep
 * Fill in your timetable (you can use the fill helper at the bottom right, but it's not very well documented :p). Each cell is half an hour.
 * The AWS lambda (once setup) will read the last sheet (which is presumably the sheet with the latest date) and compare the current cell with the previous cell. If there is a difference, it will send you a message using Telegram.
 
-## [AWS Lambda Config Parameters](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html)
+## AWS Lambda Config Parameters
+Environment variables you'll need to set for your lambda. See [this](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) on how to setup environment variables.
+
 Necessary:
 * **SPREADSHEET_ID**: Your spreadsheet ID.
 * **SERVICE_ACCOUNT_SECRET**: The secret JSON key for your service account. Copy the entire json in. Make sure your env. variables are encrypted (it should be automatically performed for you).
@@ -42,7 +44,10 @@ Optional:
 1. Make sure you have an AWS account. Using this application uses about ~10k lambda requests per month if you set the scheduler to ping every 5 minutes, so it's definitely still within the free tier. With cron jobs you ping every 30 minutes. 
 2. Take the zip file and upload it onto AWS lambda. You can follow [this](https://docs.aws.amazon.com/lambda/latest/dg/getting-started-create-function.html) to create a function, but you'll need to click Actions > upload zip file to upload it (the UI may change in the future though).
     * If you want to create your own zipfile (development package) refer to [this](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-venv).
-3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. I schedule mine to trigger every 5 minutes because I like the guarantee of precision, but you can get by with 10 or even 30 minutes. You can also use cron (here is a [tool](https://crontab.guru/) for that). I like to use the cron expression `0,30 16-7 * * ? *` (remember to include the gmt offset into your hours parameters). AWS cloudwatch's cron expression is a little different from the usual cron params (See [accepted answer](https://stackoverflow.com/questions/59496652/aws-cloudwatch-rule-schedule-cron-expression-to-skip-2-hours-in-a-day)). If you got it right you'll see the next 10 trigger dates.
+3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. You can also use cron (here is a [tool](https://crontab.guru/) for that). For my own uses, I used the cron expression `0,30 0-16 * * ? *`. 
+   * Make sure to account for the GMT offset into your hours parameters. (e.g. Singapore time is GMT+8 and I want to set the inactive times from 00:00 to 08:00 in SG time, so that's 16:00 to 00:00 in GMT time). 
+   * Note that you can combine commas and ranges in your cron expression.
+   * AWS cloudwatch's cron expression is also little different from the usual cron params (See [accepted answer](https://stackoverflow.com/questions/59496652/aws-cloudwatch-rule-schedule-cron-expression-to-skip-2-hours-in-a-day)). If you got it right you'll see the next 10 trigger dates in the UI.
 4. Set all the necessary environmental variables for the lambda (See "AWS Lambda Config Parameters above).
 
 ## Others directory
