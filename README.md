@@ -8,22 +8,6 @@ Using AWS Lambda + Cloudwatch to read your timetable from Google Sheets and keep
 * Fill in your timetable (you can use the fill helper at the bottom right, but it's not very well documented :p). Each cell is half an hour.
 * The AWS lambda (once setup) will read the last sheet (which is presumably the sheet with the latest date) and compare the current cell with the previous cell. If there is a difference, it will send you a message using Telegram.
 
-## AWS Lambda Config Parameters
-Environment variables you'll need to set for your lambda. See [this](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) on how to setup environment variables.
-
-Necessary:
-* **SPREADSHEET_ID**: Your spreadsheet ID.
-* **SERVICE_ACCOUNT_SECRET**: The secret JSON key for your service account. Copy the entire json in. Make sure your env. variables are encrypted (it should be automatically performed for you).
-* **TELEGRAM_BOT_TOKEN**: Token which identifies your bot, used for Telegram bot API.
-* **TELEGRAM_CHAT_ID**: The bot will use this chat id to send you notifications.
-* **UTC_TIME_DIFFERENCE**: Time difference from UTC (e.g. Singapore is UTC+8, so it would be "8"). Unfortunately current implementation probably doesn't account for daylight saving time
-
-Optional:
-* **TRIGGER_INTERVAL**: Integer, set this as the interval (in minutes) you set your cloudwatch to trigger the lambda code. Treat this as the precision number if you use a cron or something (e.g. if your code triggers every half an hour, set it to 30 or 31, but 5 still works since it's precise enough). Default 5.
-* **INACTIVE_START_HOUR** Integer, start hour (inclusive) where the lambda stops sending pings (e.g. for when you are sleeping). Range 0-23, default 0. Note that this is relative to your own time after `UTC_TIME_DIFFERENCE` has been applied.
-* **INACTIVE_END_HOUR** Integer, end hour (exclusive) where the lambda stops sending pings (e.g. for when you are sleeping). Range 0-23, default 8. Note that this is relative to your own time after `UTC_TIME_DIFFERENCE` has been applied.
-* **DEBUG_MODE**: If set to a value, then messages will be more verbose. Telegram bot will also receive debug messages.
-
 ## Steps
 
 ## Integrating Google Sheets
@@ -49,6 +33,23 @@ Optional:
    * Note that you can combine commas and ranges in your cron expression.
    * AWS cloudwatch's cron expression is also little different from the usual cron params (See [accepted answer](https://stackoverflow.com/questions/59496652/aws-cloudwatch-rule-schedule-cron-expression-to-skip-2-hours-in-a-day)). If you got it right you'll see the next 10 trigger dates in the UI.
 4. Set all the necessary environmental variables for the lambda (See "AWS Lambda Config Parameters above).
+
+## AWS Lambda Config Parameters
+Once you've got the lambda up and running, there are some environment variables you'll need to set for your lambda. See [this](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) on how to setup environment variables. Basically you'll be setting the variables you got from the previous steps as environment variables for your lambda to reference.
+
+Necessary:
+* **SPREADSHEET_ID**: Your spreadsheet ID.
+* **SERVICE_ACCOUNT_SECRET**: The secret JSON key for your service account. Copy the entire json in. Make sure your env. variables are encrypted (it should be automatically performed for you).
+* **TELEGRAM_BOT_TOKEN**: Token which identifies your bot, used for Telegram bot API.
+* **TELEGRAM_CHAT_ID**: The bot will use this chat id to send you notifications.
+* **UTC_TIME_DIFFERENCE**: Time difference from UTC (e.g. Singapore is UTC+8, so it would be "8"). Unfortunately current implementation probably doesn't account for daylight saving time
+
+Optional:
+* **TRIGGER_INTERVAL**: Integer, set this as the interval (in minutes) you set your cloudwatch to trigger the lambda code. Treat this as the precision number if you use a cron or something (e.g. if your code triggers every half an hour, set it to 30 or 31, but 5 still works since it's precise enough). Default 5.
+* **INACTIVE_START_HOUR** Integer, start hour (inclusive) where the lambda stops sending pings (e.g. for when you are sleeping). Range 0-23, default 0. Note that this is relative to your own time after `UTC_TIME_DIFFERENCE` has been applied.
+* **INACTIVE_END_HOUR** Integer, end hour (exclusive) where the lambda stops sending pings (e.g. for when you are sleeping). Range 0-23, default 8. Note that this is relative to your own time after `UTC_TIME_DIFFERENCE` has been applied.
+* **DEBUG_MODE**: If set to a value, then messages will be more verbose. Telegram bot will also receive debug messages.
+
 
 ## Others directory
 * Contains development package for googleapiclient & google-oauth2-tools for AWS Lambda (necessary for running python code that uses these libraries on AWS Lambda)
