@@ -85,7 +85,10 @@ def get_day_index(sheet_data, datetime_object):
 
 def is_inactive_time(datetime_object):
     # Check it's not night
-    return not (datetime_object.hour > INACTIVE_END_HOUR or datetime_object.hour < INACTIVE_START_HOUR)
+    if INACTIVE_START_HOUR <= INACTIVE_END_HOUR: # 15 - 23 for example
+        return not (datetime_object.hour < INACTIVE_END_HOUR and datetime_object.hour >= INACTIVE_START_HOUR)
+    else: # 23 - 6 for example
+        return not (datetime_object.hour >= INACTIVE_START_HOUR or datetime_object.hour < INACTIVE_END_HOUR)
 
 def get_previous_item_str(sheet_data, datetime_object):
     # Assumes same day, doesn't work if it needs to check a previous sheet
@@ -115,8 +118,8 @@ def send_telegram_message(text):
 
 def is_time_to_ping(datetime_object):
     # Only ping after every hour or half hour
-    return (datetime_object.minute - TRIGGER_INTERVAL < 0) \
-        or (datetime_object.minute > 30 and datetime_object.minute - TRIGGER_INTERVAL <= 30)
+    return (datetime_object.minute - TRIGGER_INTERVAL <= 0) \
+        or (datetime_object.minute >= 30 and datetime_object.minute - TRIGGER_INTERVAL <= 30)
     
 def lambda_handler(event, context):
     datetime_object = datetime.datetime.strptime(event["time"], '%Y-%m-%dT%H:%M:%SZ')
