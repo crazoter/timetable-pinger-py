@@ -86,9 +86,9 @@ def get_day_index(sheet_data, datetime_object):
 def is_inactive_time(datetime_object):
     # Check it's not night
     if INACTIVE_START_HOUR <= INACTIVE_END_HOUR: # 15 - 23 for example
-        return not (datetime_object.hour < INACTIVE_END_HOUR and datetime_object.hour >= INACTIVE_START_HOUR)
+        return datetime_object.hour < INACTIVE_END_HOUR and datetime_object.hour >= INACTIVE_START_HOUR
     else: # 23 - 6 for example
-        return not (datetime_object.hour >= INACTIVE_START_HOUR or datetime_object.hour < INACTIVE_END_HOUR)
+        return datetime_object.hour >= INACTIVE_START_HOUR or datetime_object.hour < INACTIVE_END_HOUR
 
 def get_previous_item_str(sheet_data, datetime_object):
     # Assumes same day, doesn't work if it needs to check a previous sheet
@@ -126,8 +126,12 @@ def lambda_handler(event, context):
     datetime_object += datetime.timedelta(hours=UTC_TIME_DIFFERENCE)
 
     if DEBUG_MODE:
-        send_telegram_message("Event time: " + str(event["time"]))
-        send_telegram_message("Processed time: " + str(datetime_object.strftime("%Y-%m-%d %H:%M")))
+        text = "Event time: " + str(event["time"])
+        text += '\n' + "Processed time: " + str(datetime_object.strftime("%Y-%m-%d %H:%M"))
+        text += '\n' + "H:M: " + str(datetime_object.hour) + ":" + str(datetime_object.minute)
+        text += '\n' + "Inactive Start,End: " + str(INACTIVE_START_HOUR) + "," + str(INACTIVE_END_HOUR)
+        send_telegram_message(text)
+
 
     if not is_time_to_ping(datetime_object):
         if DEBUG_MODE:
