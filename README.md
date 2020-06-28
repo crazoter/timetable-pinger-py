@@ -13,10 +13,10 @@ Using AWS Lambda + Cloudwatch to read your timetable from Google Sheets and keep
 ## Integrating Google Sheets
 1. I use this [template](https://docs.google.com/spreadsheets/d/15L7JJgl1YgaGM9b8nN6eNuTSHaSWa5_IQUya8mL9dXw/edit?usp=sharing) for my own timetabling purposes. You can make a copy. Note that the date format for the first row matters ("17 Jun", "18 Feb" etc). The application expects that the date is numerical and the month is 3 characters. However if you're using the template this should be automatically formatted for you.
 2. There are numerous tutorials online on how to access google sheets. [The one I used](https://medium.com/@denisluiz/python-with-google-sheets-service-account-step-by-step-8f74c26ed28e) didn't involve gspread.
-3. Although you don't need to setup the code, you'll need to undergo the steps in the tutorial to obtain:
-    * SPREADSHEET_ID
-    * SERVICE_ACCOUNT_SECRET
-    * Make sure the lambda can access your spreadsheet
+3. Although you don't need to setup the code, you'll need to undergo the steps in the tutorial to:
+    * Get the SPREADSHEET_ID (which is the id in your spreadsheet url)
+    * Get SERVICE_ACCOUNT_SECRET (you'll need to enable google drive API, create a service account etc
+    * Make sure the lambda can access your spreadsheet by granting the service account access to your spreadsheet
 
 ## Integrating Telegram
 1. Create a telegram bot (See [this](https://core.telegram.org/bots)).
@@ -27,7 +27,7 @@ Using AWS Lambda + Cloudwatch to read your timetable from Google Sheets and keep
 ## Integrating AWS Lambda & AWS Cloudwatch
 1. Make sure you have an AWS account. Using this application uses about ~10k lambda requests per month if you set the scheduler to ping every 5 minutes, so it's definitely still within the free tier. With cron jobs you ping every 30 minutes. 
 2. Take the zip file and upload it onto AWS lambda. You can follow [this](https://docs.aws.amazon.com/lambda/latest/dg/getting-started-create-function.html) to create a function, but you'll need to click Actions > upload zip file to upload it (the UI may change in the future though).
-    * If you want to create your own zipfile (development package) refer to [this](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-venv).
+    * If you want to create your own zipfile (deployment package) refer to [this](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-venv).
 3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. You can also use cron (here is a [tool](https://crontab.guru/) for that). For my own uses, I used the cron expression `0,30 0-16 * * ? *`. 
    * Make sure to account for the GMT offset into your hours parameters. (e.g. Singapore time is GMT+8 and I want to set the inactive times from 00:00 to 08:00 in SG time, so that's 16:00 to 00:00 in GMT time). 
    * Note that you can combine commas and ranges in your cron expression.
