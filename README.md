@@ -11,7 +11,7 @@ Using AWS Lambda + Cloudwatch to read your timetable from Google Sheets and keep
 ## Steps
 
 ## Integrating Google Sheets
-1. I use this [template](https://docs.google.com/spreadsheets/d/15L7JJgl1YgaGM9b8nN6eNuTSHaSWa5_IQUya8mL9dXw/edit?usp=sharing) for my own timetabling purposes. You can make a copy. Note that the date format matters (17 Jun, 18 Feb etc)
+1. I use this [template](https://docs.google.com/spreadsheets/d/15L7JJgl1YgaGM9b8nN6eNuTSHaSWa5_IQUya8mL9dXw/edit?usp=sharing) for my own timetabling purposes. You can make a copy. Note that the date format for the first row matters ("17 Jun", "18 Feb" etc). The application expects that the date is numerical and the month is 3 characters. However if you're using the template this should be automatically formatted for you.
 2. There are numerous tutorials online on how to access google sheets. [The one I used](https://medium.com/@denisluiz/python-with-google-sheets-service-account-step-by-step-8f74c26ed28e) didn't involve gspread.
 3. Although you don't need to setup the code, you'll need to undergo the steps in the tutorial to obtain:
     * SPREADSHEET_ID
