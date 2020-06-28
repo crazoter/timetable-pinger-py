@@ -5,6 +5,7 @@ Using AWS Lambda + Cloudwatch to read your timetable from Google Sheets and keep
 ## How?
 
 * Basically you use Google Sheets as your  timetable. With every new week, duplicate the tab and update the dates on the 2nd row (just update the first cell then drag across the rest). 
+   * The pinger will only work if it can find a column section marked with today's date on the last sheet in the spreadsheet.
 * Fill in your timetable (you can use the fill helper at the bottom right, but it's not very well documented :p). Each cell is half an hour.
 * The AWS lambda (once setup) will read the last sheet (which is presumably the sheet with the latest date) and compare the current cell with the previous cell. If there is a difference, it will send you a message using Telegram.
 
