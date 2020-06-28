@@ -39,7 +39,7 @@ Optional:
     * Using your browser, call the [getUpdates method](https://core.telegram.org/bots/api#getupdates) using [Telegram Bot API](https://core.telegram.org/bots/api#making-requests). You can identify the **chat_id** this way.
 
 ## Integrating AWS Lambda & AWS Cloudwatch
-1. Make sure you have an AWS account. Using this application uses about ~10k lambda requests per month if you set the scheduler to ping every 5 minutes, so it's definitely still within the free tier. 
+1. Make sure you have an AWS account. Using this application uses about ~10k lambda requests per month if you set the scheduler to ping every 5 minutes, so it's definitely still within the free tier. With cron jobs you ping every 30 minutes. 
 2. Take the zip file and upload it onto AWS lambda. You can follow [this](https://docs.aws.amazon.com/lambda/latest/dg/getting-started-create-function.html) to create a function, but you'll need to click Actions > upload zip file to upload it (the UI may change in the future though).
     * If you want to create your own zipfile (development package) refer to [this](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-venv).
 3. Use AWS Cloudwatch to trigger scheduled lambdas. See [this](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html) tutorial. I schedule mine to trigger every 5 minutes because I like the guarantee of precision, but you can get by with 10 or even 30 minutes. You can also use cron (here is a [tool](https://crontab.guru/) for that). I like to use the cron expression `0,30 16-7 * * ? *` (remember to include the gmt offset into your hours parameters). AWS cloudwatch's cron expression is a little different from the usual cron params (See [accepted answer](https://stackoverflow.com/questions/59496652/aws-cloudwatch-rule-schedule-cron-expression-to-skip-2-hours-in-a-day)). If you got it right you'll see the next 10 trigger dates.
@@ -51,4 +51,5 @@ Optional:
 ## Potential issues
 * The item checking system is quite rudimentary, so it only check the latest sheet.
 * Your lambda may timeout with default settings. I set mine to use 15s, 192 mb of memory.
-    * With debug mode off, a check that doesn't require pinging usually bills 0.1s; otherwise ~7 to 8s (still very much within 400,000-GB seconds)
+    * With debug mode off, a check that doesn't require pinging usually bills 0.1s; otherwise ~7 to 10s (still very much within 400,000-GB seconds).
+    * With debug mode on, a check takes ~1s (to send message to telegram), otherwise ~10s.
